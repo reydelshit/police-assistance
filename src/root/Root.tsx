@@ -5,11 +5,11 @@ import App from '@/App';
 export default function Root() {
   const location = useLocation();
 
-  const isLogin = localStorage.getItem('isLogin');
+  // const isLogin = localStorage.getItem('isLogin');
 
-  if (!isLogin) {
-    return (window.location.href = '/login');
-  }
+  // if (!isLogin) {
+  //   return (window.location.href = '/login');
+  // }
 
   return (
     <div className="w-full ">

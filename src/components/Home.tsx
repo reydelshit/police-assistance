@@ -26,6 +26,8 @@ type Report = {
   more_details: string;
   image: string;
   report_id: number;
+  assigned: string;
+  status: string;
 };
 
 type PoliceType = {
@@ -100,15 +102,25 @@ export default function Home() {
   const handleAssingedPolice = () => {
     axios
       .post(`${import.meta.env.VITE_POLICE_ASSISTANCE}/assign.php`, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
         police_id: seletedPoliceID,
         report_id: seletedReportID,
+        assigned: selectedPolice,
       })
       .then((res) => {
         console.log(res.data);
         setShowAssignPolice(false);
+        window.location.reload();
+      });
+  };
+
+  const handleReportStatus = (report_id: number) => {
+    axios
+      .put(`${import.meta.env.VITE_POLICE_ASSISTANCE}/assign.php`, {
+        report_id: report_id,
+        status: 'Done',
+      })
+      .then((res) => {
+        console.log(res.data);
         window.location.reload();
       });
   };
@@ -145,19 +157,20 @@ export default function Home() {
           <TableHeader className="bg-[#B99470] text-white">
             <TableRow>
               <TableHead className="text-white text-center">
+                Date/Time Occured
+              </TableHead>
+              <TableHead className="text-white text-center">
                 Incident Report
               </TableHead>
               <TableHead className="text-white text-center">Location</TableHead>
 
               <TableHead className="text-white text-center">
-                Date/Time Occured
-              </TableHead>
-              <TableHead className="text-white text-center">
                 More Details
               </TableHead>
 
               <TableHead className="text-white text-center">Image</TableHead>
-
+              <TableHead className="text-white text-center">Assigned</TableHead>
+              <TableHead className="text-white text-center">Status</TableHead>
               <TableHead className="text-white text-center">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -166,14 +179,15 @@ export default function Home() {
               .filter((rep) => rep.incident_report.includes(searchReports))
               .map((rep, index) => (
                 <TableRow key={index}>
-                  <TableCell>{rep.incident_report}</TableCell>
-                  <TableCell>{rep.location}</TableCell>
                   <TableCell>
                     {' '}
                     {moment(rep.datetime_occured).format('LLL')}
                   </TableCell>
+                  <TableCell>{rep.incident_report}</TableCell>
+                  <TableCell>{rep.location}</TableCell>
 
                   <TableCell>{rep.more_details}</TableCell>
+
                   <TableCell>
                     {rep.image.length > 0 ? (
                       <a
@@ -186,8 +200,17 @@ export default function Home() {
                       <p>n/a</p>
                     )}
                   </TableCell>
+
+                  <TableCell>{rep.assigned}</TableCell>
+                  <TableCell>{rep.status}</TableCell>
+
                   <TableCell>
-                    <Button className="mr-2">Solved/Done</Button>
+                    <Button
+                      onClick={() => handleReportStatus(rep.report_id)}
+                      className="mr-2"
+                    >
+                      Solved/Done
+                    </Button>
                     <Button onClick={() => handleAssignPolice(rep.report_id)}>
                       Assign Police
                     </Button>
