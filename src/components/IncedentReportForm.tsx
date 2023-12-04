@@ -123,7 +123,10 @@ export default function IncendentReportForm() {
 
             <h1 className="font-bold text-3xl">SUCCESSFULLY SUBMITTED</h1>
 
-            <p>All details you submitted will remain anonymous rest assure</p>
+            <p>
+              Rest assured, all the details you've submitted will remain
+              completely anonymous.
+            </p>
 
             <Button
               className="my-4 w-[15rem] bg-[#125B50]"
