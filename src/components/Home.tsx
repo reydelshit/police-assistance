@@ -19,6 +19,19 @@ import { Input } from './ui/input';
 import moment from 'moment';
 import { Button } from './ui/button';
 import { Link } from 'react-router-dom';
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+
 type Report = {
   incident_report: string;
   location: string;
@@ -51,6 +64,7 @@ export default function Home() {
 
   const [seletedReportID, setSelectedReportID] = useState<number>(0);
   const [seletedPoliceID, setSelectedPoliceID] = useState<number>(0);
+  const [selectedStatus, setSelectedStatus] = useState('All');
 
   const getAllReports = () => {
     axios
@@ -113,11 +127,11 @@ export default function Home() {
       });
   };
 
-  const handleReportStatus = (report_id: number) => {
+  const handleReportStatus = (report_id: number, status: string) => {
     axios
       .put(`${import.meta.env.VITE_POLICE_ASSISTANCE}/assign.php`, {
         report_id: report_id,
-        status: 'Done',
+        status: status === 'Done' ? 'On Going' : 'Done',
       })
       .then((res) => {
         console.log(res.data);
@@ -125,23 +139,34 @@ export default function Home() {
       });
   };
 
+  const handleFilterStatus = (value: string) => {
+    const selected = value;
+    console.log(selected);
+    setSelectedStatus(selected);
+  };
+
   return (
     <div className="relative">
-      <h1 className="font-bold text-2xl">HOME</h1>
+      <div className="w-full bg-[#125B50] p-4 rounded-lg text-white">
+        <h1 className="font-bold text-4xl text-start">Home</h1>
+        <p className="text-start">See Latest Reports</p>
+      </div>
 
       <div className="flex justify-start items-start my-[2rem]">
         <Link to="/police">
-          <Button className="w-[15rem]">Police</Button>
+          <Button className="w-[15rem] bg-[#125B50]">Police</Button>
         </Link>
       </div>
 
       <div>
         <div className="flex justify-between">
-          <Select>
+          <Select onValueChange={handleFilterStatus}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="All">All</SelectItem>
+
               <SelectItem value="Done">Done</SelectItem>
               <SelectItem value="On Going">On Going</SelectItem>
             </SelectContent>
@@ -154,7 +179,7 @@ export default function Home() {
         </div>
 
         <Table className="border-2">
-          <TableHeader className="bg-[#B99470] text-white">
+          <TableHeader className="bg-[#125B50] text-white">
             <TableRow>
               <TableHead className="text-white text-center">
                 Date/Time Occured
@@ -176,7 +201,12 @@ export default function Home() {
           </TableHeader>
           <TableBody>
             {reports
-              .filter((rep) => rep.incident_report.includes(searchReports))
+              .filter(
+                (rep) =>
+                  (rep.incident_report.includes(searchReports) ||
+                    rep.status === '') &&
+                  (selectedStatus === 'All' || rep.status === selectedStatus),
+              )
               .map((rep, index) => (
                 <TableRow key={index}>
                   <TableCell>
@@ -206,12 +236,17 @@ export default function Home() {
 
                   <TableCell>
                     <Button
-                      onClick={() => handleReportStatus(rep.report_id)}
-                      className="mr-2"
+                      onClick={() =>
+                        handleReportStatus(rep.report_id, rep.status)
+                      }
+                      className="mr-2 bg-[#125B50]"
                     >
-                      Solved/Done
+                      {rep.status === 'Done' ? 'Set On Going' : 'Set Done'}
                     </Button>
-                    <Button onClick={() => handleAssignPolice(rep.report_id)}>
+                    <Button
+                      className="bg-[#125B50]"
+                      onClick={() => handleAssignPolice(rep.report_id)}
+                    >
                       Assign Police
                     </Button>
                   </TableCell>
@@ -241,19 +276,27 @@ export default function Home() {
               <div className="w-full flex justify-end">
                 <Input
                   onChange={(e) => setSearchPolice(e.target.value)}
-                  className="w-[15rem]"
+                  className="w-[15rem] my-4"
                   placeholder="search police"
                 />
               </div>
               <Table>
-                <TableHeader>
+                <TableHeader className="bg-[#125B50]">
                   <TableRow>
                     <TableHead></TableHead>
 
-                    <TableHead className="text-center">Name</TableHead>
-                    <TableHead className="text-center">Address</TableHead>
-                    <TableHead className="text-center">Phone</TableHead>
-                    <TableHead className="text-center">Actions</TableHead>
+                    <TableHead className="text-center text-white">
+                      Name
+                    </TableHead>
+                    <TableHead className="text-center text-white">
+                      Address
+                    </TableHead>
+                    <TableHead className="text-center text-white">
+                      Phone
+                    </TableHead>
+                    <TableHead className="text-center text-white">
+                      Actions
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -277,6 +320,7 @@ export default function Home() {
 
                           <TableCell>
                             <Button
+                              className="bg-[#125B50]"
                               onClick={() =>
                                 handleSelectPolice(
                                   pol.police_name,
@@ -297,13 +341,13 @@ export default function Home() {
             </div>
 
             {selectedPolice.length > 0 && (
-              <div className="w-full flex justify-start flex-col text-start my-[2rem]">
-                <h1 className="font-bold">SELECTED POLICE</h1>
-                <div className="w-full flex justify-start items-center">
+              <div className="w-full flex justify-start flex-col text-start my-[2rem] bg-[#125B50] p-2 text-white rounded-lg items-center">
+                <h1 className="font-bold text-center">SELECTED POLICE</h1>
+                <div className="w-full flex justify-center items-center">
                   <img
                     src={selectedPoliceProfile}
                     alt={selectedPoliceProfile}
-                    className="w-[5rem] h-[5rem] object-cover"
+                    className="w-[10rem] h-[10rem] object-cover"
                   />
                   <p className="font-bold text-2xl">{selectedPolice}</p>
                 </div>
@@ -311,13 +355,40 @@ export default function Home() {
             )}
 
             <div className="flex gap-4">
-              <Button onClick={() => setShowAssignPolice(false)}>Close</Button>
               <Button
-                disabled={selectedPolice.length > 0 ? false : true}
-                onClick={handleAssingedPolice}
+                className="bg-[#125B50]"
+                onClick={() => setShowAssignPolice(false)}
               >
-                Assign
+                Close
               </Button>
+
+              <AlertDialog>
+                <AlertDialogTrigger
+                  className="bg-[#125B50] text-white font-bold w-[5rem] rounded-lg cursor-pointer"
+                  disabled={selectedPolice.length > 0 ? false : true}
+                >
+                  Assign
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Read before you assign</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      By clicking continue, you are assigning this police to
+                      this report. and they will be notified about this report
+                      through sms .
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      className="bg-[#125B50]"
+                      onClick={handleAssingedPolice}
+                    >
+                      Continue
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
         </div>

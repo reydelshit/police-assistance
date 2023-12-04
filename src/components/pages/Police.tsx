@@ -90,18 +90,28 @@ export default function Police() {
 
   return (
     <div>
-      <h1 className="font-bold text-2xl">Police</h1>
+      <div className="w-full bg-[#125B50] p-4 rounded-lg text-white">
+        <h1 className="font-bold text-4xl text-start">Police</h1>
+        <p className="text-start">Manage Police</p>
+      </div>
+
       <div className="flex gap-4 mt-[5rem]">
-        <div className="w-[30rem] border-2 p-4">
+        <div className="w-[30rem] border-2 p-4 bg-[#125B50] text-white rounded-lg">
           <form className="text-start" onSubmit={handleSubmit}>
             <div className="my-2">
               <Label>Police Name:</Label>
-              <Input required name="police_name" onChange={handleInputChange} />
+              <Input
+                className="bg-white text-black"
+                required
+                name="police_name"
+                onChange={handleInputChange}
+              />
             </div>
 
             <div className="my-2">
               <Label>Location:</Label>
               <Input
+                className="bg-white text-black"
                 required
                 name="assigned_location"
                 onChange={handleInputChange}
@@ -111,6 +121,7 @@ export default function Police() {
             <div className="my-2">
               <Label>Phone:</Label>
               <Input
+                className="bg-white text-black"
                 required
                 name="phone_number"
                 onChange={handleInputChange}
@@ -120,6 +131,7 @@ export default function Police() {
             <div className="my-2">
               <Label>Image(optional)</Label>
               <Input
+                className="bg-white text-black"
                 onChange={handleChangeImage}
                 required
                 type="file"
@@ -128,7 +140,7 @@ export default function Police() {
             </div>
 
             <div className="my-2 w-full flex items-center justify-center">
-              <Button className="w-[10rem]">Submit</Button>
+              <Button className="w-[10rem] bg-white text-black">Submit</Button>
             </div>
           </form>
         </div>
@@ -137,20 +149,22 @@ export default function Police() {
           <div className="w-full flex justify-end">
             <Input
               onChange={(e) => setSearchPolice(e.target.value)}
-              className="w-[15rem]"
+              className="w-[15rem] my-4"
               placeholder="search police"
             />
           </div>
           <Table>
-            <TableCaption>A list of your recent invoices.</TableCaption>
-            <TableHeader>
+            <TableHeader className="bg-[#125B50] text-white">
               <TableRow>
                 <TableHead></TableHead>
-
-                <TableHead className="text-center">Name</TableHead>
-                <TableHead className="text-center">Address</TableHead>
-                <TableHead className="text-center">Phone</TableHead>
-                <TableHead className="text-center">Actions</TableHead>
+                <TableHead className="text-center text-white">Name</TableHead>
+                <TableHead className="text-center text-white">
+                  Address
+                </TableHead>
+                <TableHead className="text-center text-white">Phone</TableHead>
+                <TableHead className="text-center text-white">
+                  Actions
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -173,8 +187,8 @@ export default function Police() {
                       <TableCell>{pol.phone_number}</TableCell>
 
                       <TableCell>
-                        <Button className="mr-2">Edit</Button>
-                        <Button>Delete</Button>
+                        <Button className="mr-2 bg-[#125B50]">Edit</Button>
+                        <Button className="bg-[#125B50]">Delete</Button>
                       </TableCell>
                     </TableRow>
                   );

@@ -4,6 +4,7 @@ import { Textarea } from './ui/textarea';
 import { Button } from './ui/button';
 import { useState } from 'react';
 import axios from 'axios';
+import success from '../assets/submit-successfully.png';
 
 type EventChange =
   | React.ChangeEvent<HTMLInputElement>
@@ -64,8 +65,8 @@ export default function IncendentReportForm() {
   };
 
   return (
-    <div className="w-full justify-center items-center flex">
-      <div className="w-[50%] border-2 p-4 text-start rounded-lg">
+    <div className="w-full justify-center items-center flex ">
+      <div className="w-[50%] border-2 p-4 text-start rounded-lg bg-white">
         <h1 className="text-center font-bold text-3xl">REPORT PAGE</h1>
 
         <form onSubmit={handleSubmit}>
@@ -110,22 +111,24 @@ export default function IncendentReportForm() {
             placeholder="Please describe the incident or problem in detail"
           />
           <div className="my-2 w-full flex items-center justify-center">
-            <Button className="w-[10rem]">Submit</Button>
+            <Button className="w-[10rem] bg-[#125B50]">Submit</Button>
           </div>
         </form>
       </div>
 
       {showSuccess && (
         <div className="absolute w-full flex justify-center items-center h-screen bg-white bg-opacity-90 ">
-          <div className="w-[30%]  rounded-xl bg-white border-2 h-[20rem] flex flex-col items-center justify-center">
+          <div className="w-[30%] rounded-xl bg-white border-2 h-fit p-4 flex flex-col items-center justify-center">
+            <img className="w-[10rem]" src={success} alt="" />
+
             <h1 className="font-bold text-3xl">SUCCESSFULLY SUBMITTED</h1>
 
-            <p>
-              All details you submitted will remain anonymous rest assure
-              hWHAHWHWA
-            </p>
+            <p>All details you submitted will remain anonymous rest assure</p>
 
-            <Button className="my-4 w-[15rem]" onClick={handleOkay}>
+            <Button
+              className="my-4 w-[15rem] bg-[#125B50]"
+              onClick={handleOkay}
+            >
               Okay
             </Button>
           </div>
