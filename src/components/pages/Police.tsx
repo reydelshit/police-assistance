@@ -9,7 +9,7 @@ import {
 import { Label } from '@radix-ui/react-label';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import VerifyPassword from '../VerifyPassword';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';

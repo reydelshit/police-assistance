@@ -1,13 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App.tsx';
-import './index.css';
-import Login from './components/Login.tsx';
-import Root from './root/Root.tsx';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Home from './components/Home.tsx';
+import Login from './components/Login.tsx';
 import Police from './components/pages/Police.tsx';
 import Register from './components/Register.tsx';
+import './index.css';
+import Root from './root/Root.tsx';
 
 const router = createBrowserRouter([
   {
