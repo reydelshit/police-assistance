@@ -37,8 +37,8 @@ export default function Register() {
   const evaluatePasswordStrength = (password: string) => {
     const result = zxcvbn(password);
     return {
-      score: result.score, // Score from 0 to 4 indicating the strength
-      feedback: result.feedback.suggestions, // Any feedback or suggestions from the library
+      score: result.score,
+      feedback: result.feedback.suggestions,
     };
   };
 
