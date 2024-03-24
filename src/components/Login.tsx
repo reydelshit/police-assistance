@@ -1,18 +1,64 @@
 import React, { useState } from 'react';
 import { Button } from './ui/button';
-export default function Login() {
-  const [username, setUsername] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const defaultUsername = 'admin';
-  const defaultPassword = 'admin';
+import { Navigate } from 'react-router-dom';
+import axios from 'axios';
+import CryptoJS from 'crypto-js';
 
+type ChangeEvent = React.ChangeEvent<HTMLInputElement>;
+
+export default function Login() {
+  // const [username, setUsername] = useState<string>('');
+  // const [password, setPassword] = useState<string>('');
+
+  const police_token = localStorage.getItem('police_token');
+  const secretKey = 'heart_token';
+  if (police_token) {
+    return <Navigate to="/" replace={true} />;
+  }
+
+  const [errorInput, setErrorInput] = useState<string>('');
+
+  const [credentials, setCredentials] = useState({
+    username: '',
+    password: '',
+  });
+
+  const handleChange = (e: ChangeEvent) => {
+    const { name, value } = e.target;
+
+    setCredentials((values) => ({ ...values, [name]: value }));
+
+    console.log(credentials);
+  };
+  const encrypt = (encrypt: string) => {
+    const ciphertext = CryptoJS.AES.encrypt(encrypt, secretKey).toString();
+
+    localStorage.setItem('police_token', ciphertext);
+  };
+
+  // reydelshit
+  // reydelshitp
   const handleLogin = () => {
-    if (username !== defaultUsername || password !== defaultPassword) {
-      return alert('Invalid username or password');
-    } else {
-      window.location.href = '/home';
-      localStorage.setItem('isLogin', 'true');
-    }
+    if (!credentials.username || !credentials.password)
+      return setErrorInput('Please fill in all fields');
+
+    console.log(credentials.username, credentials.password);
+    axios
+      .get(`${import.meta.env.VITE_POLICE_ASSISTANCE}/login.php`, {
+        params: credentials,
+      })
+      .then((res) => {
+        console.log(res.data);
+        encrypt(res.data[0].user_id.toString());
+        localStorage.setItem('police_reauth', '0');
+
+        if (res.data[0].user_id) {
+          window.location.href = '/police';
+        }
+      })
+      .catch((error) => {
+        console.error('Error occurred during login:', error);
+      });
   };
   return (
     <div className="flex flex-col items-center justify-center h-screen ">
@@ -25,23 +71,34 @@ export default function Login() {
         </div>
         <div className="flex flex-col items-center justify-center gap-2 mt-5  w-[40rem] p-4 ">
           <input
-            onChange={(e) => setUsername(e.target.value)}
+            onChange={handleChange}
             type="text"
             placeholder="Username"
+            name="username"
             className="p-2 border-2 rounded-md outline-none w-[20rem] text-black"
           />
           <input
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={handleChange}
             type="password"
             placeholder="Password"
+            name="password"
             className="p-2 border-2 rounded-md outline-none w-[20rem] text-black"
           />
+          <span>
+            <a href="/register">Create account</a>
+          </span>
           <Button
             onClick={handleLogin}
             className="p-2 bg-white  text-black rounded-md w-[10rem]"
           >
             Login
           </Button>
+
+          {errorInput && (
+            <p className="text-primary-red border-2 bg-white p-2 rounded-md font-semibold">
+              {errorInput}
+            </p>
+          )}
         </div>
       </div>
     </div>

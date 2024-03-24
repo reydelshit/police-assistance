@@ -5,11 +5,16 @@ import { Button } from './ui/button';
 import { useState } from 'react';
 import axios from 'axios';
 import success from '../assets/submit-successfully.png';
+import { Navigate } from 'react-router-dom';
 
 type EventChange =
   | React.ChangeEvent<HTMLInputElement>
   | React.ChangeEvent<HTMLTextAreaElement>;
 export default function IncendentReportForm() {
+  if (localStorage.getItem('police_token')) {
+    return <Navigate to="/police" replace={true} />;
+  }
+
   const [showSuccess, setShowSuccess] = useState(false);
   const [image, setImage] = useState<string | null>(null);
   const [reportsDetails, setReportsDetails] = useState({
