@@ -11,9 +11,9 @@ type EventChange =
   | React.ChangeEvent<HTMLInputElement>
   | React.ChangeEvent<HTMLTextAreaElement>;
 export default function IncendentReportForm() {
-  if (localStorage.getItem('police_token')) {
-    return <Navigate to="/police" replace={true} />;
-  }
+  // if (localStorage.getItem('police_token')) {
+  //   return <Navigate to="/police" replace={true} />;
+  // }
 
   const [showSuccess, setShowSuccess] = useState(false);
   const [image, setImage] = useState<string | null>(null);

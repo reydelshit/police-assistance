@@ -1,18 +1,18 @@
-import { Label } from '@radix-ui/react-label';
-import { Input } from '../ui/input';
-import { Button } from '../ui/button';
-import { Textarea } from '../ui/textarea';
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useState, useEffect } from 'react';
+import { Label } from '@radix-ui/react-label';
 import axios from 'axios';
+import { useEffect, useState } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
+import VerifyPassword from '../VerifyPassword';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
 
 type EventChange =
   | React.ChangeEvent<HTMLInputElement>
@@ -26,27 +26,31 @@ type PoliceType = {
   image: string;
 };
 export default function Police() {
-  const [showSuccess, setShowSuccess] = useState(false);
+  const police_token = localStorage.getItem('police_token');
+
+  useEffect(() => {
+    if (!police_token) {
+      window.location.href = '/login';
+    }
+  }, []);
   const [image, setImage] = useState<string | null>(null);
   const [policeDetails, setPoliceDetails] = useState({
     police_name: '',
     assigned_location: '',
     phone_number: '',
   });
+
+  const [showReauth, setShowReauth] = useState(false);
+  const [storeDeleteID, setStoreDeleteID] = useState<number>(0);
+
+  const navigate = useNavigate();
   const [searchPolice, setSearchPolice] = useState('');
 
   const [police, setPolice] = useState<PoliceType[]>([]);
 
-  const getAllPolice = () => {
-    axios
-      .get(`${import.meta.env.VITE_POLICE_ASSISTANCE}/police.php`)
-      .then((res) => {
-        console.log(res.data, 'reports');
-        if (res.data.length > 0) {
-          setPolice(res.data);
-        }
-      });
-  };
+  useEffect(() => {
+    getAllPolice();
+  }, []);
 
   const handleInputChange = (e: EventChange) => {
     const { name, value } = e.target;
@@ -81,22 +85,75 @@ export default function Police() {
       })
       .then((res) => {
         console.log(res.data);
+        getAllPolice();
+
+        setPoliceDetails(() => ({
+          police_name: '',
+          assigned_location: '',
+          phone_number: '',
+        }));
       });
   };
 
-  useEffect(() => {
-    getAllPolice();
-  }, []);
+  const handleDelete = (id: number) => {
+    const reauthToken = localStorage.getItem('police_reauth') as string;
+
+    console.log(id);
+
+    if (reauthToken === '0') {
+      setShowReauth(true);
+      setStoreDeleteID(id);
+    } else {
+      axios
+        .delete(`${import.meta.env.VITE_POLICE_ASSISTANCE}/police.php`, {
+          data: { police_id: id },
+        })
+        .then((res) => {
+          console.log(res.data);
+          getAllPolice();
+        });
+    }
+  };
+
+  const getAllPolice = () => {
+    axios
+      .get(`${import.meta.env.VITE_POLICE_ASSISTANCE}/police.php`)
+      .then((res) => {
+        console.log(res.data, 'reports');
+        if (res.data.length > 0) {
+          setPolice(res.data);
+        }
+      });
+  };
 
   return (
-    <div>
+    <div className="relative">
+      {showReauth && (
+        <VerifyPassword
+          phpFile="police"
+          deleteIDColumn="police_id"
+          storeDeleteID={storeDeleteID}
+          setShowReauth={setShowReauth}
+          decrypt={getAllPolice}
+        />
+      )}
+
       <div className="w-full bg-[#125B50] p-4 rounded-lg text-white">
         <h1 className="font-bold text-4xl text-start">Police</h1>
         <p className="text-start">Manage Police</p>
       </div>
 
+      <div className="flex justify-start items-start my-[2rem]">
+        <Button
+          className="w-[15rem] bg-[#125B50]"
+          onClick={() => navigate('/home')}
+        >
+          Go Back
+        </Button>
+      </div>
+
       <div className="flex gap-4 mt-[5rem]">
-        <div className="w-[30rem] border-2 p-4 bg-[#125B50] text-white rounded-lg">
+        <div className="w-[30rem] border-2 p-4 bg-[#125B50] h-fit text-white rounded-lg">
           <form className="text-start" onSubmit={handleSubmit}>
             <div className="my-2">
               <Label>Police Name:</Label>
@@ -187,8 +244,12 @@ export default function Police() {
                       <TableCell>{pol.phone_number}</TableCell>
 
                       <TableCell>
-                        <Button className="mr-2 bg-[#125B50]">Edit</Button>
-                        <Button className="bg-[#125B50]">Delete</Button>
+                        <Button
+                          onClick={() => handleDelete(pol.police_id)}
+                          className="bg-[#125B50]"
+                        >
+                          Delete
+                        </Button>
                       </TableCell>
                     </TableRow>
                   );

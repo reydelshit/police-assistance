@@ -11,7 +11,7 @@ export default function Login() {
   // const [password, setPassword] = useState<string>('');
 
   const police_token = localStorage.getItem('police_token');
-  const secretKey = 'heart_token';
+  const secretKey = 'heart_secretkey';
   if (police_token) {
     return <Navigate to="/" replace={true} />;
   }
@@ -53,7 +53,7 @@ export default function Login() {
         localStorage.setItem('police_reauth', '0');
 
         if (res.data[0].user_id) {
-          window.location.href = '/police';
+          window.location.href = '/home';
         }
       })
       .catch((error) => {
