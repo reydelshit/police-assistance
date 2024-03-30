@@ -3,6 +3,7 @@ import CryptoJS from 'crypto-js';
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Button } from './ui/button';
+import { Input } from './ui/input';
 
 type ChangeEvent = React.ChangeEvent<HTMLInputElement>;
 
@@ -11,6 +12,15 @@ export default function Login() {
   // const [password, setPassword] = useState<string>('');
 
   const police_token = localStorage.getItem('police_token');
+  const defaultRandomString = Math.random().toString(36).substring(7);
+  const [randomString, setRandomString] = useState<string>(defaultRandomString);
+  const [randomStringInput, setRandomStringInput] = useState<string>('');
+
+  const generateRandomString = () => {
+    const randomString = Math.random().toString(36).substring(7);
+    setRandomString(randomString);
+  };
+
   const secretKey = 'heart_secretkey';
   if (police_token) {
     return <Navigate to="/" replace={true} />;
@@ -41,6 +51,10 @@ export default function Login() {
   const handleLogin = () => {
     if (!credentials.username || !credentials.password)
       return setErrorInput('Please fill in all fields');
+
+    if (randomStringInput !== randomString) {
+      return setErrorInput('Verification failed. Please try again.');
+    }
 
     console.log(credentials.username, credentials.password);
     axios
@@ -84,6 +98,24 @@ export default function Login() {
             name="password"
             className="p-2 border-2 rounded-md outline-none w-[20rem] text-black"
           />
+
+          <div>
+            <div className="flex bg-gray-200 my-4 items-center justify-between rounded-md p-2 text-black">
+              <span className="font-semibold text-2xl tracking-[1.5rem]">
+                {randomString}
+              </span>
+              <Button onClick={() => generateRandomString()}>Refresh</Button>
+            </div>
+
+            <Input
+              className="p-2 border-2 rounded-md outline-none w-[20rem] text-black bg-white"
+              type="text"
+              onChange={(e) => setRandomStringInput(e.target.value)}
+              placeholder="Verify"
+              required
+            />
+          </div>
+
           <span>
             <a href="/register">Create account</a>
           </span>
@@ -95,7 +127,7 @@ export default function Login() {
           </Button>
 
           {errorInput && (
-            <p className="text-primary-red border-2 bg-white p-2 rounded-md font-semibold">
+            <p className="text-red-400 border-2 bg-white p-2 rounded-md font-semibold">
               {errorInput}
             </p>
           )}

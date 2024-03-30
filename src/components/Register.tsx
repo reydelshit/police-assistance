@@ -15,19 +15,17 @@ export default function Register() {
     return <Navigate to="/" replace={true} />;
   }
 
-  const [username, setUsername] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
   const [errorInput, setErrorInput] = useState<string>('');
   const [successfulLogin, setSuccessfulLogin] = useState<boolean>(false);
   const [seconds, setSeconds] = useState(5);
-  const [credentials, setCredentials] = useState([]);
+  const [credentials, setCredentials] = useState({
+    username: '',
+    password: '',
+  });
   const navigate = useNavigate();
 
   const handleChange = (e: ChangeEvent) => {
     const { name, value } = e.target;
-
-    setUsername(value);
-    setPassword(value);
 
     setCredentials((values) => ({ ...values, [name]: value }));
 
@@ -43,15 +41,16 @@ export default function Register() {
   };
 
   const handleRegister = () => {
-    const { score } = evaluatePasswordStrength(password);
+    const { score } = evaluatePasswordStrength(credentials.password);
 
-    if (!username || !password || score < 4)
+    if (!credentials.username || !credentials.password || score < 4)
       return setErrorInput(
         'Please fill in all fields or password must be strong',
       );
     axios
       .post(`${import.meta.env.VITE_POLICE_ASSISTANCE}/login.php`, {
-        ...credentials,
+        username: credentials.username,
+        password: credentials.password,
       })
       .then((res: any) => {
         console.log(res.data, 'login successfully');
@@ -71,7 +70,7 @@ export default function Register() {
   const handleCheckPassword = (e: ChangeEvent) => {
     const { value } = e.target;
 
-    if (value !== password) {
+    if (value !== credentials.password) {
       setErrorInput('Passwords do not match');
     } else {
       setErrorInput('');
@@ -134,8 +133,11 @@ export default function Register() {
           </p>
         )}
 
-        {password.length > 0 && (
-          <PasswordStrengthBar className="w-full my-4" password={password} />
+        {credentials.password.length > 0 && (
+          <PasswordStrengthBar
+            className="w-full my-4"
+            password={credentials.password}
+          />
         )}
 
         <Button

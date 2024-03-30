@@ -1,4 +1,5 @@
 import { Outlet, useLocation } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 import App from '@/App';
 
@@ -11,6 +12,13 @@ export default function Root() {
   //   return (window.location.href = '/login');
   // }
 
+  const handleLogout = () => {
+    localStorage.removeItem('police_reauth');
+    localStorage.removeItem('police_token');
+
+    window.location.href = '/login';
+  };
+
   return (
     <div className="w-full ">
       {/* <Header /> */}
@@ -20,6 +28,11 @@ export default function Root() {
           {location.pathname === '/' ? <App /> : <Outlet />}
         </div>
       </div>
+      {location.pathname !== '/' && (
+        <Button onClick={handleLogout} className="absolute bottom-4 left-4">
+          Logout
+        </Button>
+      )}
     </div>
   );
 }
