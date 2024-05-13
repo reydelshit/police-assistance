@@ -1,6 +1,6 @@
 import axios from 'axios';
 import CryptoJS from 'crypto-js';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -15,6 +15,23 @@ export default function Login() {
   const defaultRandomString = Math.random().toString(36).substring(7);
   const [randomString, setRandomString] = useState<string>(defaultRandomString);
   const [randomStringInput, setRandomStringInput] = useState<string>('');
+
+  const [disabledFiveMinutes, setDisabledFiveMinutes] =
+    useState<boolean>(false);
+  const [remainingTime, setRemainingTime] = useState(0);
+
+  useEffect(() => {
+    if (remainingTime > 0) {
+      setDisabledFiveMinutes(true);
+      const timer = setTimeout(() => {
+        setRemainingTime((prevTime) => prevTime - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else {
+      setDisabledFiveMinutes(false);
+      localStorage.removeItem('login_attempt');
+    }
+  }, [remainingTime]);
 
   const generateRandomString = () => {
     const randomString = Math.random().toString(36).substring(7);
@@ -49,25 +66,46 @@ export default function Login() {
   // reydelshit
   // reydelshitp
   const handleLogin = () => {
-    if (!credentials.username || !credentials.password)
-      return setErrorInput('Please fill in all fields');
-
+    console.log('re');
     if (randomStringInput !== randomString) {
       return setErrorInput('Verification failed. Please try again.');
     }
 
-    console.log(credentials.username, credentials.password);
+    const loginAttempt = localStorage.getItem('login_attempt');
+
+    if (!credentials.username || !credentials.password) {
+      return setErrorInput('Please fill up all fields.');
+    }
     axios
       .get(`${import.meta.env.VITE_POLICE_ASSISTANCE}/login.php`, {
         params: credentials,
       })
       .then((res) => {
-        console.log(res.data);
-        encrypt(res.data[0].user_id.toString());
-        localStorage.setItem('police_reauth', '0');
+        if (res.data.length === 0) {
+          if (loginAttempt) {
+            const newLoginAttempt = parseInt(loginAttempt) + 1;
+            localStorage.setItem('login_attempt', newLoginAttempt.toString());
+            if (newLoginAttempt > 3) {
+              alert(
+                'You have reached the maximum login attempt. Please try again after 1 minute.',
+              );
+              setDisabledFiveMinutes(true);
+              setRemainingTime(20);
+            } else {
+              alert('Invalid username or password');
+            }
+          } else {
+            localStorage.setItem('login_attempt', '1');
+            alert('Invalid username or password');
+          }
+        } else {
+          console.log(res.data);
+          encrypt(res.data[0].user_id.toString());
+          localStorage.setItem('police_reauth', '0');
 
-        if (res.data[0].user_id) {
-          window.location.href = '/home';
+          if (res.data[0].user_id) {
+            window.location.href = '/home';
+          }
         }
       })
       .catch((error) => {
@@ -120,8 +158,11 @@ export default function Login() {
             <a href="/register">Create account</a>
           </span>
           <Button
+            disabled={disabledFiveMinutes}
             onClick={handleLogin}
-            className="p-2 bg-white  text-black rounded-md w-[10rem]"
+            className={`p-2 bg-white text-black rounded-md w-[10rem] ${
+              disabledFiveMinutes && 'cursor-not-allowed'
+            }`}
           >
             Login
           </Button>

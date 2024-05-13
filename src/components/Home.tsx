@@ -71,9 +71,7 @@ export default function Home() {
       .get(`${import.meta.env.VITE_POLICE_ASSISTANCE}/reports.php`)
       .then((res) => {
         console.log(res.data, 'reports');
-        if (res.data.length > 0) {
-          setReports(res.data);
-        }
+        setReports(res.data);
       });
   };
 
@@ -81,10 +79,9 @@ export default function Home() {
     axios
       .get(`${import.meta.env.VITE_POLICE_ASSISTANCE}/police.php`)
       .then((res) => {
-        console.log(res.data, 'reports');
-        if (res.data.length > 0) {
-          setPolice(res.data);
-        }
+        // console.log(res.data, 'reports');
+
+        setPolice(res.data);
       });
   };
 
@@ -146,7 +143,7 @@ export default function Home() {
   };
 
   return (
-    <div className="relative">
+    <div className="relative w-full">
       <div className="w-full bg-[#125B50] p-4 rounded-lg text-white">
         <h1 className="font-bold text-4xl text-start">Home</h1>
         <p className="text-start">See Latest Reports</p>
@@ -178,7 +175,7 @@ export default function Home() {
           />
         </div>
 
-        <Table className="border-2">
+        <Table className="border-2 w-full">
           <TableHeader className="bg-[#125B50] text-white">
             <TableRow>
               <TableHead className="text-white text-center">
@@ -214,12 +211,14 @@ export default function Home() {
                     {moment(rep.datetime_occured).format('LLL')}
                   </TableCell>
                   <TableCell>{rep.incident_report}</TableCell>
-                  <TableCell>{rep.location}</TableCell>
+                  <TableCell>
+                    <p className="w-full break-words">{rep.location}</p>
+                  </TableCell>
 
                   <TableCell>{rep.more_details}</TableCell>
 
                   <TableCell>
-                    {rep.image.length > 0 ? (
+                    {rep.image ? (
                       <a
                         onClick={() => handleShowImage(rep.image)}
                         className="underline cursor-pointer"
@@ -256,7 +255,7 @@ export default function Home() {
         </Table>
       </div>
 
-      {storeImage.length > 0 && showImage && (
+      {storeImage && showImage && (
         <div className="absolute w-full h-screen top-0 bg-white bg-opacity-90 flex justify-center items-center">
           <div className="w-[30%] h-[30rem] bg-white rounded-xl flex flex-col justify-center items-center">
             <img
@@ -340,7 +339,7 @@ export default function Home() {
               </Table>
             </div>
 
-            {selectedPolice.length > 0 && (
+            {selectedPolice && (
               <div className="w-full flex justify-start flex-col text-start my-[2rem] bg-[#125B50] p-2 text-white rounded-lg items-center">
                 <h1 className="font-bold text-center">SELECTED POLICE</h1>
                 <div className="w-full flex justify-center items-center">
@@ -365,7 +364,7 @@ export default function Home() {
               <AlertDialog>
                 <AlertDialogTrigger
                   className="bg-[#125B50] text-white font-bold w-[5rem] rounded-lg cursor-pointer"
-                  disabled={selectedPolice.length > 0 ? false : true}
+                  disabled={selectedPolice ? false : true}
                 >
                   Assign
                 </AlertDialogTrigger>

@@ -2,6 +2,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
 import App from '@/App';
+import { useEffect, useState } from 'react';
 
 export default function Root() {
   const location = useLocation();
@@ -18,6 +19,44 @@ export default function Root() {
 
     window.location.href = '/login';
   };
+
+  const [idle, setIdle] = useState(false);
+
+  const timeout = 10000;
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+
+    const resetIdleTimer = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        setIdle(true);
+        handleLogout();
+      }, timeout);
+    };
+
+    const handleUserActivity = () => {
+      if (idle) {
+        setIdle(false);
+      }
+      resetIdleTimer();
+    };
+
+    resetIdleTimer();
+
+    window.addEventListener('mousemove', handleUserActivity);
+    window.addEventListener('mousedown', handleUserActivity);
+    window.addEventListener('keypress', handleUserActivity);
+    window.addEventListener('scroll', handleUserActivity);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('mousemove', handleUserActivity);
+      window.removeEventListener('mousedown', handleUserActivity);
+      window.removeEventListener('keypress', handleUserActivity);
+      window.removeEventListener('scroll', handleUserActivity);
+    };
+  }, [timeout, idle, handleLogout]);
 
   return (
     <div className="w-full ">
